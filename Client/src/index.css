@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Cossette+Texte:wght@400;700&family=Geo:ital@0;1&display=swap');
+@import "tailwindcss";
+
+*{
+  font-family: "Geo", sans-serif;
+  /* font-family: "Cossette Texte", sans-serif; */
+}
