@@ -1,0 +1,15 @@
+from rq import Queue
+from redis import Redis
+from controller import upload_repo
+
+
+redis_con = Redis(host="localhost", port=6379)
+q = Queue("default", connection=redis_con)
+
+
+def enqueue_upload_repo(url: str):
+    job = q.enqueue(upload_repo, url)
+    print(f"Job queued successfully")
+    print(f"Job ID: {job.id}")
+    print(f"Current Queue Count: {q.count}")
+    return job.id
