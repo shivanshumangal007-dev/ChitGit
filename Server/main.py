@@ -6,11 +6,11 @@ from upload_worker import enqueue_upload_repo
 from pydanticModels import repoUrl
 
 
-from controllers.Repo_controller import get_Readme, search_repos, get_Tree
+from controllers.Repo_controller import get_Readme, search_repos, create_data_for_embedding, upload_repo_on_qdrant
 
 
 app = FastAPI();
-# model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # client.delete_collection(collection_name="test_collection")
 
@@ -22,26 +22,48 @@ app = FastAPI();
 #     )
 # )
 
-@app.post("/upload/repo")
-def upload_repo(url: repoUrl):
-    enqueue_upload_repo(url.url)
-    return {"message": "Repo uploaded successfully"}
+# @app.post("/upload/repo")
+# def upload_repo(url: repoUrl):
+#     enqueue_upload_repo(url.url)
+#     return {"message": "Repo uploaded successfully"}
 
 
-@app.get("/search/repo")
-def searchRepo(query: str):
-    return search_repos(query=query)
+# @app.get("/search/repo")
+# def searchRepo(query: str):
+#     return search_repos(query=query)
 
 
 
-@app.get("/repo/readme")
-def getReadme(repo_url: str):
-    return get_Readme(repo_url=repo_url)
+# @app.get("/repo/readme")
+# def getReadme(repo_url: str):
+#     return get_Readme(repo_url=repo_url)
 
 
-@app.get("/repo/tree")
-def getTree(repo_url: str):
-    return get_Tree(repo_url=repo_url)
+# @app.get("/repo/tree")
+# def getTree(repo_url: str):
+#     return get_Tree(repo_url=repo_url)
+
+
+### REPO ROUTES ###
+@app.post('/repo')
+def upload_repo(req: repoUrl):
+    return upload_repo_on_qdrant(url = req.url)
+
+@app.delete('/repo')
+def delete_repo(url: repoUrl):
+    pass
+
+
+
+### CHAT ROUTES ###
+@app.get('/chat')
+def fetch_chat(url : repoUrl):
+    pass
+
+
+@app.post('/chat')
+def post_chat(url : repoUrl, query: str):
+    pass
 
 
 # points = []

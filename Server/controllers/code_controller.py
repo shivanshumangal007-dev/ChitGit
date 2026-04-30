@@ -111,9 +111,9 @@ def create_chunk(file_info):
 
     chunks = [doc.page_content for doc in docs]
 
-    for i, chunk in enumerate(chunks):
-        print(f"\n---- chunk {i} ----\n")
-        print(chunk[:200])
+    # for i, chunk in enumerate(chunks):
+    #     print(f"\n---- chunk {i} ----\n")
+    #     print(chunk[:200])
 
     return chunks
 

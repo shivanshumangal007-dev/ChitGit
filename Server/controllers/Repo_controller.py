@@ -1,14 +1,20 @@
 import time
+import uuid
 from github import Github
 from github import Auth
+from sentence_transformers import SentenceTransformer
 from controllers.code_controller import get_file_code, create_chunk
 from config.config import GITHUB_TOKEN
 import os
+from qdrant import client
+from qdrant_client.models import Document, VectorParams, Distance, PointStruct
 
 auth = Auth.Token(GITHUB_TOKEN)
 
 
 g = Github(auth=auth)
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 IGNORE_DIRS = {
@@ -77,7 +83,7 @@ def get_Readme(repo_url):
         return {"error": str(e)}
 
 
-def get_Tree(repo_url):
+def create_data_for_embedding(repo_url):
     try:
         repo_name = repo_url.split("github.com/")[1]
         # print(f"Fetching file tree for repo: {repo_name}") #debugging log
@@ -123,14 +129,18 @@ def get_Tree(repo_url):
         for file_info in file_tree:
             print(f"Creating chunks for file: {file_info['path']} with size: {file_info['size']} bytes") #debugging log
             chunks = create_chunk(file_info)
+            if not chunks:
+                print(f"No chunks created for file: {file_info['path']}") #debugging log
+                continue
             c.append({
                 "path": file_info['path'],
-                "chunks": chunks
+                "chunks": chunks,
+                "chunks_len": len(chunks)
             })
             print(f"Created {len(chunks)} chunks for file: {file_info['path']}") #debugging log
 
         
-        return {"file_tree": file_tree, "total_usable_files": total_usable_files, "chunks": c[:200]}
+        return { "total_usable_files": total_usable_files, "chunk_data": c}
     except Exception as e:
         print(f"Error occurred while fetching file tree: {e}")
         return {"error": str(e)}
@@ -138,9 +148,36 @@ def get_Tree(repo_url):
 
 
 
-def upload_repo(url):
+def upload_repo_on_qdrant(url):
     print(f"Starting upload for repo at {url}")
-    time.sleep(20)
+    repo_name = url.split("github.com/")[1]
+
+    chunk_data = create_data_for_embedding(url)
+    points = []
+    for file in chunk_data["chunk_data"]:
+        path = file["path"]
+        for i, chunk in enumerate(file["chunks"]):
+            search_text = f"{path}\n{chunk}"
+            vec = model.encode(search_text).tolist()
+            points.append(
+                PointStruct(
+                    id=str(uuid.uuid4()),
+                    vector=vec,
+                    payload={
+                        "repo_name": repo_name,
+                        "file_path": path,
+                        "chunk_index": i,
+                        "text": chunk
+                    }
+
+                )
+
+            )
+    client.upsert(
+        collection_name="repo_chunks",
+        points=points
+    ) 
+
     print(f"Upload completed for repo at {url}")
     
     return {"message": f"Repo at {url} uploaded successfully"}
