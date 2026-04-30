@@ -1,6 +1,7 @@
 import time
 from github import Github
 from github import Auth
+from controllers.code_controller import get_file_code, create_chunk
 from config.config import GITHUB_TOKEN
 import os
 
@@ -86,7 +87,8 @@ def get_Tree(repo_url):
         total_usable_files = 0
         while contents:
             file_content = contents.pop(0)
-
+            
+            print(f"Processing file: {file_content}") #debugging log
             path_parts = file_content.path.split("/")
             filename = os.path.basename(file_content.path)
 
@@ -101,19 +103,34 @@ def get_Tree(repo_url):
             # Ignore file extensions
             if any(filename.endswith(ext) for ext in IGNORE_EXTENSIONS):
                 continue
-
+            if file_content.type == "file":
+                code = get_file_code(repo,file_content.path)
+            else:
+                code = None
             file_tree.append({
+                "code": code,
                 "path": file_content.path,
                 "type": file_content.type,
-                "size": file_content.size
+                "size": file_content.size,
             })
 
             if file_content.type == "dir":
                 contents.extend(repo.get_contents(file_content.path))
             total_usable_files+=1
 
-            
-        return {"file_tree": file_tree, "total_usable_files": total_usable_files}
+        c = []
+
+        for file_info in file_tree:
+            print(f"Creating chunks for file: {file_info['path']} with size: {file_info['size']} bytes") #debugging log
+            chunks = create_chunk(file_info)
+            c.append({
+                "path": file_info['path'],
+                "chunks": chunks
+            })
+            print(f"Created {len(chunks)} chunks for file: {file_info['path']}") #debugging log
+
+        
+        return {"file_tree": file_tree, "total_usable_files": total_usable_files, "chunks": c[:200]}
     except Exception as e:
         print(f"Error occurred while fetching file tree: {e}")
         return {"error": str(e)}

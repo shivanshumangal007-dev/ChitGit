@@ -6,7 +6,7 @@ from upload_worker import enqueue_upload_repo
 from pydanticModels import repoUrl
 
 
-from controller import get_Readme, search_repos, get_Tree
+from controllers.Repo_controller import get_Readme, search_repos, get_Tree
 
 
 app = FastAPI();

@@ -1,6 +1,6 @@
 from rq import Queue
 from redis import Redis
-from controller import upload_repo
+from controllers.Repo_controller import upload_repo
 
 
 redis_con = Redis(host="localhost", port=6379)
