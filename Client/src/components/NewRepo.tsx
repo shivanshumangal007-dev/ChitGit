@@ -22,7 +22,6 @@ const NewRepo = ({ setNewRepo, onUploadComplete }: ChildProps) => {
 		try {
 			const res = await api.post("/repo", { url: repoUrl });
 			setJobId(res.data?.job_id ?? null);
-			setRepoUrl("");
 		} catch (err) {
 			console.error("Error uploading repository:", err);
 			setUploading(false);
@@ -35,6 +34,7 @@ const NewRepo = ({ setNewRepo, onUploadComplete }: ChildProps) => {
 					: "Failed to upload repository.",
 			);
 		}
+
 	};
 	return uploading ? (
 		<UploadingRepo
@@ -43,6 +43,7 @@ const NewRepo = ({ setNewRepo, onUploadComplete }: ChildProps) => {
 			jobId={jobId}
 			onUploadComplete={onUploadComplete}
 			repoUrl={repoUrl}
+			setRepoUrl={setRepoUrl}
 		/>
 	) : (
 		<div className='w-full h-full flex flex-col gap-9 items-center justify-center'>

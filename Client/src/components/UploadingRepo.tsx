@@ -6,6 +6,7 @@ type ChildProps = {
 	jobId: string | null;
 	onUploadComplete: () => void;
 	repoUrl: string;
+	setRepoUrl: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const UploadingRepo = ({
@@ -14,11 +15,11 @@ const UploadingRepo = ({
 	jobId,
 	onUploadComplete,
 	repoUrl,
+	setRepoUrl,
 }: ChildProps) => {
-
 	const createConversation = async (repoUrl: string) => {
 		try {
-			const res = await api.post('/chat/create_conversation', { url: repoUrl });
+			const res = await api.post("/chat/create_conversation", { url: repoUrl });
 			return res.data;
 		} catch (error) {
 			console.error("Error creating conversation:", error);
@@ -48,6 +49,7 @@ const UploadingRepo = ({
 					createConversation(repoUrl).catch((error) => {
 						console.error("Error creating conversation after upload:", error);
 					});
+					setRepoUrl("");
 				}
 			} catch (error) {
 				console.error("Error checking upload status:", error);
