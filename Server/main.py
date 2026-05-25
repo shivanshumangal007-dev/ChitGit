@@ -1,9 +1,7 @@
-from qdrant import client
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from upload_worker import enqueue_upload_repo, get_job_status
 from pydanticModels import repoUrl, sendChatRequest, Message as MessageSchema
 from controllers.Chat_controller import fetch_all_messages_for_conversation, upload_chat_to_DB, create_conversation, init_db
-from controllers.Repo_controller import get_task_status, search_in_repo, ensure_repo_chunks_collection, fetch_all_repos,upload_repo_on_qdrant
+from controllers.Repo_controller import search_in_repo, ensure_repo_chunks_collection, fetch_all_repos, upload_repo_on_qdrant, get_task_status
 from controllers.Ai_first_layer import get_query_enhanced,final_ai_response
 from fastapi.middleware.cors import CORSMiddleware
 from config.config import ENV
@@ -72,11 +70,9 @@ def prepare_qdrant_indexes():
 
 ### REPO ROUTES ###
 @app.post('/repo')
-def upload_repo(req: repoUrl,background_tasks: BackgroundTasks):
+def upload_repo(req: repoUrl, background_tasks: BackgroundTasks):
     task_id = str(uuid.uuid4())
-    response = background_tasks.add_task(upload_repo_on_qdrant, req.url, task_id)
-    print(f"Background task for uploading repo enqueued: {response}")
-    # jobid = enqueue_upload_repo(req.url)
+    background_tasks.add_task(upload_repo_on_qdrant, req.url, task_id)
     return {"message": "Repo upload job enqueued successfully", "job_id": task_id}
 
 @app.delete('/repo')
