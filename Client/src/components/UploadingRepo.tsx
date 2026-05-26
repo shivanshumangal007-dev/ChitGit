@@ -40,8 +40,15 @@ const UploadingRepo = ({
 				if (currentStatus) {
 					setStatus(currentStatus);
 				}
-
-				if (currentStatus === "finished" || currentStatus === "failed") {
+				if (currentStatus === "failed"){
+					clearInterval(interval);
+					// setUploading(false);
+					// setNewRepo(true);
+					// onUploadComplete();
+					setRepoUrl("");
+					setStatus("failed");
+				}
+				if (currentStatus === "finished") {
 					clearInterval(interval);
 					setUploading(false);
 					setNewRepo(true);
@@ -69,6 +76,24 @@ const UploadingRepo = ({
 				<div className='w-[50%] h-full bg-blue-500 rounded-full'></div>
 			</div>
 			<div className='text-2xl font-semibold'>Current Status: {status}</div>
+			{status === "failed" || status.length > 2 ? (
+				<div className='text-red-500 text-center'>
+					<p>
+						failed to upload your repository, pls retry again after sometime
+						after checking the repo url
+					</p>
+					<button
+						className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+						onClick={() => {
+							setRepoUrl("");
+							setStatus("");
+							setUploading(false);
+						}}
+					>
+						Retry
+					</button>
+				</div>
+			) : null}
 		</div>
 	);
 };

@@ -135,11 +135,17 @@ def get_Readme(repo_url):
         return {"error": str(e)}
 
 
-def create_data_for_embedding(repo_url):
+def create_data_for_embedding(repo_url, task_id):
     try:
         repo_name = normalize_repo_name(repo_url)
         # print(f"Fetching file tree for repo: {repo_name}") #debugging log
-        repo = g.get_repo(repo_name)
+        try:
+            task_status[task_id] = "checking_repo"
+            repo = g.get_repo(repo_name)
+        except Exception as e:
+            print(f"Error occurred while fetching repository: {e}")
+            task_status[task_id] = "failed"
+            return {"error": str(e)}
         contents = repo.get_contents("")
         file_tree = []
         total_usable_files = 0
@@ -195,6 +201,7 @@ def create_data_for_embedding(repo_url):
         return { "total_usable_files": total_usable_files, "chunk_data": c}
     except Exception as e:
         print(f"Error occurred while fetching file tree: {e}")
+        task_status[task_id] = "failed"
         return {"error": str(e)}
 
 
@@ -210,7 +217,7 @@ def upload_repo_on_qdrant(url, task_id):
         task_status[task_id] = "checking_repo"
         ensure_repo_chunks_collection()
         task_status[task_id] = "creating_chunks"
-        chunk_data = create_data_for_embedding(url)
+        chunk_data = create_data_for_embedding(url, task_id)
         task_status[task_id] = "embedding_chunks"
         points = []
         for file in chunk_data["chunk_data"]:
@@ -266,6 +273,7 @@ def upload_repo_on_qdrant(url, task_id):
         return {"message": f"Repo at {url} uploaded successfully"}
     except Exception as e:
         print(f"Error occurred while uploading repo to Qdrant: {e}")
+        task_status[task_id] = "failed"
         return {"error": str(e)}
     
 
