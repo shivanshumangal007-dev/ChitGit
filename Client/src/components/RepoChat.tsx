@@ -215,18 +215,6 @@ const RepoChat = ({ repoName, conversationId }: RepoChatProps) => {
 		} finally {
 			setIsLoading(false);
 		}
-
-		// Simulate API call - replace with actual server call
-		// setTimeout(() => {
-		// 	const botMessage: Message = {
-		// 		id: `msg-${Date.now() + 1}`,
-		// 		text: `Response to: "${userMessage.text}"`,
-		// 		sender: "assistant",
-		// 		timestamp: new Date(),
-		// 	};
-		// 	setMessages((prev) => [...prev, botMessage]);
-		// 	setIsLoading(false);
-		// }, 1500);
 	};
 
 	return (
