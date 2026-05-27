@@ -1,5 +1,5 @@
 import { Bot, MonitorCheck, Plus, Sparkles, UserRound } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import RepoUploadUI from "../Components/RepoUploadUI";
@@ -234,7 +234,8 @@ const Home = () => {
 	);
 	const fetchMessages = useChatStore((state) => state.fetchMessages);
 	const repoClickHandler = useRepoStore((state) => state.RepoClickHandler);
-
+	const [inputChat, setInputChat] = useState<string>("");
+	const postMessage = useChatStore((state) => state.postMessage);
 	useEffect(() => {
 		fetchRepos();
 	}, []);
@@ -329,7 +330,7 @@ const Home = () => {
 					</h3>
 				</header>
 
-				<section className='relative h-[calc(100vh-128px)] overflow-y-auto p-5'>
+				<section className='relative h-[calc(100vh-80px)] overflow-y-auto p-5'>
 					{errorInChat && (
 						<div className='mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-100 backdrop-blur'>
 							{errorInChat}
@@ -385,7 +386,7 @@ const Home = () => {
 							<div ref={messagesEndRef} />
 
 							<div className='pointer-events-none absolute inset-x-0 bottom-0 px-2 pb-3'>
-								<div className='mx-auto max-w-5xl'>
+								<div className='mx-auto max-w-7xl'>
 									<div className='pointer-events-auto overflow-hidden rounded-[1.75rem] border border-cyan-400/15 bg-slate-950/90 shadow-[0_24px_80px_rgba(8,145,178,0.18)] backdrop-blur-2xl'>
 										<div className='flex items-center justify-between border-b border-white/5 px-5 py-3'>
 											<div className='flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-slate-400'>
@@ -399,10 +400,14 @@ const Home = () => {
 
 										<textarea
 											placeholder='Ask anything about the repository...'
-											className='min-h-24 max-h-60 w-full resize-none bg-transparent px-5 py-4 pr-16 text-[15px] leading-7 text-white outline-none placeholder:text-slate-500'
+											className='min-h-1 max-h-60 w-full resize-none bg-transparent px-5 py-4 pr-16 text-[15px] leading-7 text-white outline-none placeholder:text-slate-500'
+											value={inputChat}
+											onChange={(e) => setInputChat(e.target.value)}
+											disabled={isLoading}
+
 										/>
 
-										<div className='flex items-center justify-between border-t border-white/5 bg-white/2 px-4 py-3'>
+										<div className='flex items-center justify-between border-t border-white/5 bg-white/2 px-4 py-1'>
 											<div className='flex items-center gap-2 text-sm text-slate-400'>
 												<span className='h-2 w-2 animate-pulse rounded-full bg-emerald-400' />
 												Repository indexed and ready
@@ -411,6 +416,11 @@ const Home = () => {
 											<button
 												type='submit'
 												className='flex items-center gap-2 rounded-2xl bg-linear-to-r from-cyan-300 to-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]'
+												onClick= {() => {
+													if(inputChat.trim() === "" || isLoading) return;
+													postMessage(inputChat, conversationID);
+													setInputChat("");
+												}}
 											>
 												Send
 											</button>

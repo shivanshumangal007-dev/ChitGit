@@ -16,7 +16,7 @@ interface conversationState {
 	setConversationId: (conversationId: number) => void;
 	addMessage: (message: Message) => void;
 	fetchMessages: (conversationId: number) => Promise<void>;
-	postMessage: (userMessageContent: string) => Promise<void>;
+	postMessage: (userMessageContent: string, conversation_id: number) => Promise<void>;
 	// createConversation: (repoUrl: string) => Promise<void>;
 }
 
@@ -28,7 +28,7 @@ const useChatStore = create<conversationState>((set, get) => ({
 	setConversationId: (conversationId: number) => set({ conversationId }),
 	addMessage: (message: Message) =>
 		set((state) => ({ messages: [...state.messages, message] })),
-	postMessage: async (userMessageContent: string) => {
+	postMessage: async (userMessageContent: string, conversation_id: number) => {
 		set({ isLoading: true, errorInChat: null });
 		const userMessage: Message = {
 			id: `msg-${Date.now()}`,
@@ -39,7 +39,8 @@ const useChatStore = create<conversationState>((set, get) => ({
 		set((state) => ({ messages: [...state.messages, userMessage] }));
         let response;
         try{
-            response = await postMessageAPI(userMessage, get().conversationId!);
+			console.log("Posting message to conversation ID:", conversation_id);
+            response = await postMessageAPI(userMessage, conversation_id);
         }catch(error){
             set({ errorInChat: "Failed to send message. Please try again." });
             set({ isLoading: false });

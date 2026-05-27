@@ -40,7 +40,7 @@ from config.config import OPENROUTER_API_KEY
 def get_query_enhanced(query: str):
     with OpenRouter(api_key=OPENROUTER_API_KEY) as client:
         response = client.chat.send(
-            model="baidu/cobuddy:free",
+            model="z-ai/glm-4.5-air:free",
             messages=[
                 {
                     "role": "user",
