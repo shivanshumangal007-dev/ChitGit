@@ -33,12 +33,21 @@ const postMessageAPI = async (Message: Message, conversationId: number) => {
 const fetchReposAPI = async () => {
 	try {
 		const res = await Api.get("/all-repos");
-        return res.data;
+		return res.data;
 		// set({ repos: Array.isArray(res.data) ? res.data : [] });
 	} catch (error) {
 		console.error("Error fetching repositories:", error);
 		// set({ repos: [], repoError: "Unable to load repositories right now." });
-        throw error;
+		throw error;
 	}
 };
-export { fetchMessagesAPI, postMessageAPI, fetchReposAPI };
+
+const uploadRepoAPI = async (repoUrl: string) => {
+	try {
+		const res = await Api.post("/repo", { url: repoUrl });
+		return res.data;
+	} catch (error) {
+		throw error;
+	}
+};
+export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI };

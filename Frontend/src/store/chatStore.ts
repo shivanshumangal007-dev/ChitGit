@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { fetchMessagesAPI, postMessageAPI } from "../api/ApiHandler";
+import Api from "../api/Api";
 
 interface Message {
 	id: string;
@@ -11,24 +12,25 @@ interface Message {
 interface conversationState {
 	conversationId: number | null;
 	messages: Message[];
-	isLaoding: boolean;
+	isLoading: boolean;
 	errorInChat: string | null;
 	setConversationId: (conversationId: number) => void;
 	addMessage: (message: Message) => void;
 	fetchMessages: (conversationId: number) => Promise<void>;
 	postMessage: (userMessageContent: string) => Promise<void>;
+	// createConversation: (repoUrl: string) => Promise<void>;
 }
 
 const useChatStore = create<conversationState>((set, get) => ({
 	messages: [],
-	isLaoding: false,
+	isLoading: false,
 	conversationId: null,
 	errorInChat: null,
 	setConversationId: (conversationId: number) => set({ conversationId }),
 	addMessage: (message: Message) =>
 		set((state) => ({ messages: [...state.messages, message] })),
 	postMessage: async (userMessageContent: string) => {
-		set({ isLaoding: true, errorInChat: null });
+		set({ isLoading: true, errorInChat: null });
 		const userMessage: Message = {
 			id: `msg-${Date.now()}`,
 			text: userMessageContent,
@@ -41,13 +43,13 @@ const useChatStore = create<conversationState>((set, get) => ({
             response = await postMessageAPI(userMessage, get().conversationId!);
         }catch(error){
             set({ errorInChat: "Failed to send message. Please try again." });
-            set({ isLaoding: false });
+            set({ isLoading: false });
             return;
         }
         const answer = response?.final_ai_answer;
 		if (!answer) {
 			set({ errorInChat: "The server returned an empty response." });
-            set({ isLaoding: false });
+            set({ isLoading: false });
             return;
 		}
 
@@ -58,10 +60,10 @@ const useChatStore = create<conversationState>((set, get) => ({
 			timestamp: new Date(),
 		};
 		set((state) => ({ messages: [...state.messages, botMessage] }));
-        set({ isLaoding: false });
+        set({ isLoading: false });
 	},
 	fetchMessages: async (conversationId: number) => {
-		set({ isLaoding: true, errorInChat: null, messages: [] });
+		set({ isLoading: true, errorInChat: null, messages: [] });
 		try {
 			const m = await fetchMessagesAPI(conversationId);
 			const fetchedMessages = m.map((msg: any) => ({
@@ -71,11 +73,11 @@ const useChatStore = create<conversationState>((set, get) => ({
 				timestamp: new Date(msg.created_at),
 			}));
 			set({ messages: fetchedMessages, errorInChat: null });
-			set({ isLaoding: false });
+			set({ isLoading: false });
 		} catch (error) {
 			console.error("Error fetching messages:", error);
 			set({ errorInChat: "Unable to load messages right now." });
-			set({ isLaoding: false });
+			set({ isLoading: false });
 		}
 	},
 }));
