@@ -53,7 +53,9 @@ const useRepoStore = create<RepoState>((set, get) => ({
 		}
 	},
 	RepoClickHandler: (repoName, conversationId) => {
+        console.log("RepoClickHandler called with:", repoName, conversationId);
 		set({ currRepo: repoName, newRepo: false, conversationID: conversationId });
+        
 	},
 	newRepoClickHandler: () => {
 		set({ currRepo: null, newRepo: true });
@@ -103,7 +105,6 @@ const useRepoStore = create<RepoState>((set, get) => ({
 					});
 				}
 			};
-            set({ UploadingStatus: "starting_upload" });
 			checkStatus();
             set({ UploadingStatus: null });
 		} catch (error) {

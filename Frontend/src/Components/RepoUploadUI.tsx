@@ -16,7 +16,8 @@ const RepoUploadUI: React.FC = () => {
 		"uploading_chunks",
 		"finished",
 	];
-	const getStageStyle = (currentStage: string, stage: string) => {
+	const getStageStyle = (currentStage: string| null, stage: string) => {
+        if(!currentStage || currentStage == "failed") return "bg-slate-700";
 		const currentIndex = statusQue.indexOf(currentStage as any);
 		const stageIndex = statusQue.indexOf(stage as any);
 
@@ -33,7 +34,8 @@ const RepoUploadUI: React.FC = () => {
 		// pending stages
 		return "bg-slate-700";
 	};
-	const getLabelStyle = (currentStage: string, stage: string) => {
+	const getLabelStyle = (currentStage: string|null, stage: string) => {
+        if(!currentStage || currentStage == "failed") return "text-zinc-500";   
 		const currentIndex = statusQue.indexOf(currentStage as any);
 		const stageIndex = statusQue.indexOf(stage as any);
 
