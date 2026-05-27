@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { fetchMessagesAPI, postMessageAPI } from "../api/ApiHandler";
-import Api from "../api/Api";
 
 interface Message {
 	id: string;

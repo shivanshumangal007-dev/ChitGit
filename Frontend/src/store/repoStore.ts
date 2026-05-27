@@ -82,9 +82,11 @@ const useRepoStore = create<RepoState>((set, get) => ({
 									error,
 								);
 							});
-                            get().fetchRepos().catch((error) => {
-                                console.error("Error fetching repos after upload:", error);
-                            });
+							get()
+								.fetchRepos()
+								.catch((error) => {
+									console.error("Error fetching repos after upload:", error);
+								});
 						}
 						if (res.data?.status === "failed") {
 							clearInterval(inter);
@@ -101,7 +103,9 @@ const useRepoStore = create<RepoState>((set, get) => ({
 					});
 				}
 			};
+            set({ UploadingStatus: "starting_upload" });
 			checkStatus();
+            set({ UploadingStatus: null });
 		} catch (error) {
 			set({
 				isRepoUploading: false,

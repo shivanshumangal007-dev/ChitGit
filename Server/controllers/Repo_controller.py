@@ -149,6 +149,7 @@ def create_data_for_embedding(repo_url, task_id):
         contents = repo.get_contents("")
         file_tree = []
         total_usable_files = 0
+        task_status[task_id] = "processing_files"
         while contents:
             file_content = contents.pop(0)
             
@@ -214,9 +215,9 @@ def upload_repo_on_qdrant(url, task_id):
     try:
         print(f"Starting upload for repo at {url}")
         repo_name = normalize_repo_name(url)
-        task_status[task_id] = "checking_repo"
+        task_status[task_id] = "checking_repo_collection"
         ensure_repo_chunks_collection()
-        task_status[task_id] = "creating_chunks"
+        task_status[task_id] = "checking_repo"
         chunk_data = create_data_for_embedding(url, task_id)
         task_status[task_id] = "embedding_chunks"
         points = []

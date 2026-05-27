@@ -145,9 +145,10 @@ const Home = () => {
 
 				<div className='mt-4 p-4 bg-gray-900/50 rounded-lg'>
 					<ul>
-						{RepoError ? (
-							<p className='text-red-500 text-sm'>{RepoError}</p>
-						) : repos.length === 0 ? (
+                        {
+                            RepoError && <p className='text-red-500 text-sm mb-2'>{RepoError}</p>
+                        }
+						{repos.length === 0 ? (
 							<p className='text-gray-500 text-sm'>No repositories found.</p>
 						) : (
 							repos.map((repo) => (
