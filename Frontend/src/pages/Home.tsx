@@ -418,7 +418,7 @@ const Home = () => {
 												className='flex items-center gap-2 rounded-2xl bg-linear-to-r from-cyan-300 to-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]'
 												onClick= {() => {
 													if(inputChat.trim() === "" || isLoading) return;
-													postMessage(inputChat, conversationID);
+													postMessage(inputChat, conversationID!);
 													setInputChat("");
 												}}
 											>
