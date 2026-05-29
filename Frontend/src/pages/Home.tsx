@@ -296,11 +296,11 @@ const Home = () => {
 									key={repo.repo_name}
 									className='group cursor-pointer rounded-2xl border border-transparent bg-white/0 px-3 py-3 text-left text-base capitalize text-slate-300 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-400/10 hover:text-white'
 									onClick={async () => {
-										await repoClickHandler(
+										repoClickHandler(
 											repo.repo_name,
 											repo.conversation_id,
 										);
-										fetchMessages(conversationID!);
+										fetchMessages(repo.conversation_id);
 									}}
 								>
 									<div className='flex items-center justify-between gap-3'>
