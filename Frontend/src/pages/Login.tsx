@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import {LoginAPI} from "../api/ApiHandler";
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const navigate = useNavigate();
+  const loginhandler = async () => {
+	try {
+		const response = await LoginAPI(email, password);
+		localStorage.setItem("token", response.access_token);
+		navigate("/");
+	} catch (error) {
+		console.error("Error during login:", error);
+	}
+  }
 	return (
 		<div className='min-h-screen bg-slate-950 text-white lg:grid lg:grid-cols-2'>
 			<div className='relative hidden overflow-hidden border-r border-white/10 lg:flex lg:flex-col lg:justify-center lg:px-12 xl:px-16'>
@@ -103,6 +112,10 @@ const Login = () => {
 						<button
 							type='submit'
 							className='mt-2 w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300'
+							onClick = {(e) => {
+								e.preventDefault();
+								loginhandler();
+							}}
 						>
 							Sign in
 						</button>

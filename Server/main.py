@@ -1,7 +1,8 @@
+from controllers.auth_controller import LoginUser, RegisterUser
 from qdrant import client
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from upload_worker import enqueue_upload_repo, get_job_status
-from pydanticModels import repoUrl, sendChatRequest, Message as MessageSchema
+# from upload_worker import enqueue_upload_repo, get_job_status
+from pydanticModels import LoginRequest, RegisterRequest, repoUrl, sendChatRequest, Message as MessageSchema
 from controllers.Chat_controller import fetch_all_messages_for_conversation, upload_chat_to_DB, create_conversation, init_db
 from controllers.Repo_controller import get_task_status, search_in_repo, ensure_repo_chunks_collection, fetch_all_repos,upload_repo_on_qdrant
 from controllers.Ai_first_layer import get_query_enhanced,final_ai_response
@@ -68,6 +69,16 @@ def prepare_qdrant_indexes():
 # @app.get("/repo/tree")
 # def getTree(repo_url: str):
 #     return get_Tree(repo_url=repo_url)
+
+###auth routes###
+
+@app.post('/login')
+def login(req: LoginRequest):
+    return LoginUser(req.email, req.password)
+
+@app.post('/register')
+def register(req: RegisterRequest):
+    return RegisterUser(req.username, req.email, req.password)
 
 
 ### REPO ROUTES ###

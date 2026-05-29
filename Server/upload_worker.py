@@ -1,39 +1,39 @@
-from rq import Queue
-from redis import Redis
-from controllers.Repo_controller import upload_repo_on_qdrant
-from rq.job import Job
-from config.config import REDIS_URL
-from fastapi import BackgroundTasks
-# from upstash_redis import Redis
+# from rq import Queue
+# from redis import Redis
+# from controllers.Repo_controller import upload_repo_on_qdrant
+# from rq.job import Job
+# # from config.config import REDIS_URL
+# from fastapi import BackgroundTasks
+# # from upstash_redis import Redis
 
-# redis_con = Redis(host="localhost", port=6379)
-redis_con = Redis.from_url(REDIS_URL)
-q = Queue("default", connection=redis_con)
-
-
-def enqueue_upload_repo(url: str):
-    job = q.enqueue(upload_repo_on_qdrant, url)
-    print(f"Job queued successfully")
-    print(f"Job ID: {job.id}")
-    print(f"Current Queue Count: {q.count}")
-    return job.id
+# # redis_con = Redis(host="localhost", port=6379)
+# redis_con = Redis.from_url(REDIS_URL)
+# q = Queue("default", connection=redis_con)
 
 
-def get_job_status(job_id: str):
-    try:
-        job = Job.fetch(job_id, connection=redis_con)
-        return {
-            "job_id": job.id,
-            "status": job.get_status(),
-            "result": job.result,
-        }
-    except Exception as e:
-        return {
-            "error": str(e)
-        }
+# def enqueue_upload_repo(url: str):
+#     job = q.enqueue(upload_repo_on_qdrant, url)
+#     print(f"Job queued successfully")
+#     print(f"Job ID: {job.id}")
+#     print(f"Current Queue Count: {q.count}")
+#     return job.id
+
+
+# def get_job_status(job_id: str):
+#     try:
+#         job = Job.fetch(job_id, connection=redis_con)
+#         return {
+#             "job_id": job.id,
+#             "status": job.get_status(),
+#             "result": job.result,
+#         }
+#     except Exception as e:
+#         return {
+#             "error": str(e)
+#         }
     
 
 
-# rq worker --worker-class rq.worker.SimpleWorker
+# # rq worker --worker-class rq.worker.SimpleWorker
 
-# rq worker default \ --url "rediss://default:gQAAAAAAARIgAAIgcDI1ZDU3M2E2MGEzOWE0MmJmYjA3YjE4NTAyODNkNmI2Ng@leading-goblin-70176.upstash.io:6379" \ -worker-class rq.worker.SimpleWorker
+# # rq worker default \ --url "rediss://default:gQAAAAAAARIgAAIgcDI1ZDU3M2E2MGEzOWE0MmJmYjA3YjE4NTAyODNkNmI2Ng@leading-goblin-70176.upstash.io:6379" \ -worker-class rq.worker.SimpleWorker

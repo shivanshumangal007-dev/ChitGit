@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RegisterAPI } from "../api/ApiHandler";
 
 const Register = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const registerHandler = async () => {
+    try{
+        const response = await RegisterAPI(email, password);
+        localStorage.setItem("token", response.access_token);
+        navigate("/login");
+    }catch(error) {
+        console.error("Error during registration:", error);
+    }
+  }
   const navigate = useNavigate();
     return (
         <div className='min-h-screen bg-slate-950 text-white lg:grid lg:grid-cols-2'>
@@ -103,6 +113,10 @@ const Register = () => {
                         <button
                             type='submit'
                             className='mt-2 w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300'
+                            onClick = {(e) => {
+                                e.preventDefault();
+                                registerHandler();
+                            }}
                         >
                             Sign up
                         </button>

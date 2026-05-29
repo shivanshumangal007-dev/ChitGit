@@ -6,6 +6,24 @@ interface Message {
 	sender: "user" | "assistant";
 	timestamp: Date;
 }
+
+const LoginAPI = async (email:string, password: string) => {
+	try {
+		const response = await Api.post('/login', {email, password});
+		return response.data;
+	} catch (error) {
+		throw error;
+	}	
+}
+const RegisterAPI = async (email:string, password: string) => {
+	try {
+		const response = await Api.post('/register', {email, password});
+		return response.data;
+	} catch (error) {
+		throw error;
+	}	
+}
+
 const fetchMessagesAPI = async (conversationId: number) => {
 	try {
 		const response = await Api.get(`/chat/${conversationId}`);
@@ -50,4 +68,4 @@ const uploadRepoAPI = async (repoUrl: string) => {
 		throw error;
 	}
 };
-export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI };
+export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI , LoginAPI, RegisterAPI };
