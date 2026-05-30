@@ -1,6 +1,6 @@
-from controllers.auth_controller import LoginUser, RegisterUser
+from controllers.auth_controller import LoginUser, RegisterUser, verify_token
 from qdrant import client
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Header
 # from upload_worker import enqueue_upload_repo, get_job_status
 from pydanticModels import LoginRequest, RegisterRequest, repoUrl, sendChatRequest, Message as MessageSchema
 from controllers.Chat_controller import fetch_all_messages_for_conversation, upload_chat_to_DB, create_conversation, init_db
@@ -70,6 +70,21 @@ def prepare_qdrant_indexes():
 # def getTree(repo_url: str):
 #     return get_Tree(repo_url=repo_url)
 
+def get_current_user(
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing token"
+        )
+    token = authorization.replace(
+        "bearer ",
+        ""
+    )
+    return verify_token(token)
+
+
 ###auth routes###
 
 @app.post('/login')
@@ -83,7 +98,8 @@ def register(req: RegisterRequest):
 
 ### REPO ROUTES ###
 @app.post('/repo')
-def upload_repo(req: repoUrl,background_tasks: BackgroundTasks):
+def upload_repo(req: repoUrl,background_tasks: BackgroundTasks, user_id: int = Depends(get_current_user)):
+
     task_id = str(uuid.uuid4())
     response = background_tasks.add_task(upload_repo_on_qdrant, req.url, task_id)
     print(f"Background task for uploading repo enqueued: {response}")
@@ -91,32 +107,36 @@ def upload_repo(req: repoUrl,background_tasks: BackgroundTasks):
     return {"message": "Repo upload job enqueued successfully", "job_id": task_id}
 
 @app.delete('/repo')
-def delete_repo(url: repoUrl):
+def delete_repo(url: repoUrl, user_id: int = Depends(get_current_user)):
     pass
 
 @app.get('/all-repos')
-def get_all_repos():
-    return fetch_all_repos()
+def get_all_repos(user_id: int = Depends(get_current_user)):
+    return fetch_all_repos(user_id)
 
 
 ### JOB STATUS ###
 @app.get('/job/{job_id}')
 def job_status(job_id:str):
+
     status = get_task_status(job_id)
     return {"job_id": job_id, "status": status, "completed": status == "finished"}
 
 ### CHAT ROUTES ###
 @app.get('/chat/{conversation_id}')
-def fetch_chat(conversation_id: int):
+def fetch_chat(conversation_id: int,user_id: int = Depends(get_current_user)):
+
     return fetch_all_messages_for_conversation(conversation_id)
 
 @app.post('/chat/create_conversation')
-def create_conversation_endpoint(req: repoUrl):
-    conversation = create_conversation(req.url)
+def create_conversation_endpoint(req: repoUrl, user_id: int = Depends(get_current_user)):
+
+    conversation = create_conversation(req.url, user_id)
     return {"message": "Conversation created successfully", "conversation_id": conversation.id, "repo_name": conversation.repo_name}
 
 @app.post('/chat')
-def post_chat(req: MessageSchema):
+def post_chat(req: MessageSchema, user_id: int = Depends(get_current_user)):
+
     try:
         enhanced_user_query = get_query_enhanced(req.content)
         search_result = search_in_repo(enhanced_user_query, req.conversation_id, top_k = 10)

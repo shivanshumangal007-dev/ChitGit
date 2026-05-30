@@ -15,9 +15,9 @@ const LoginAPI = async (email:string, password: string) => {
 		throw error;
 	}	
 }
-const RegisterAPI = async (email:string, password: string) => {
+const RegisterAPI = async (email:string, password: string, username: string) => {
 	try {
-		const response = await Api.post('/register', {email, password});
+		const response = await Api.post('/register', {email, password, username});
 		return response.data;
 	} catch (error) {
 		throw error;

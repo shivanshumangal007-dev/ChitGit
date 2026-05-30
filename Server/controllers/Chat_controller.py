@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Session, create_engine, select
-from Model import Conversation as ConversationTable, Message as MessageTable
+from Model import Conversation as ConversationTable, Message as MessageTable, User as UserTable
 from pydanticModels import Message as MessageSchema
 from config.config import DATABASE_URL
 
@@ -12,13 +12,14 @@ engine = create_engine(
 
 
 def init_db():
+    print(SQLModel.metadata.tables.keys())
     SQLModel.metadata.create_all(engine)
 
 
-def create_conversation(repo_url:str):
+def create_conversation(repo_url:str, user_id: int):
     repo_name = repo_url.split('github.com/')[-1].removesuffix('.git')
     with Session(engine) as session:
-        conversation = ConversationTable(repo_name=repo_name)
+        conversation = ConversationTable(repo_name=repo_name, user_id=user_id)
         session.add(conversation)
         session.commit()
         session.refresh(conversation)
@@ -46,9 +47,9 @@ def getRepoNameFromConversationId(conversation_id: int):
             return None
         
 
-def fetch_all_conversations():
+def fetch_all_conversations(user_id: int):
     with Session(engine) as session:
-        conversations = session.exec(select(ConversationTable)).all()
+        conversations = session.exec(select(ConversationTable).where(ConversationTable.user_id == user_id)).all()
         return conversations
     
 

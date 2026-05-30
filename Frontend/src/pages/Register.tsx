@@ -5,9 +5,10 @@ import { RegisterAPI } from "../api/ApiHandler";
 const Register = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [username, setUsername] = useState("")
   const registerHandler = async () => {
     try{
-        const response = await RegisterAPI(email, password);
+        const response = await RegisterAPI(email, password, username);
         localStorage.setItem("token", response.access_token);
         navigate("/login");
     }catch(error) {
@@ -93,6 +94,22 @@ const Register = () => {
                             />
                         </div>
 
+                        <div className='space-y-2'>
+                            <label
+                                htmlFor='password'
+                                className='text-sm font-medium text-slate-200'
+                            >
+                                Username
+                            </label>
+                            <input
+                                id='username'
+                                type='text'
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder='Enter your username'
+                                className='w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20'
+                            />
+                        </div>
                         <div className='space-y-2'>
                             <label
                                 htmlFor='password'

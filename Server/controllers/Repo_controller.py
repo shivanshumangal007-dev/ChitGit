@@ -317,9 +317,9 @@ def search_in_repo(query, conversation_id, top_k=5):
         return {"error": str(e)}
     
 
-def fetch_all_repos():
+def fetch_all_repos(user_id: int):
     try:
-        converasations = fetch_all_conversations()
+        converasations = fetch_all_conversations(user_id)
         return [{"conversation_id": conv.id, "repo_name": conv.repo_name} for conv in converasations]
     except Exception as e:
         print(f"Error occurred while fetching all repos: {e}")
