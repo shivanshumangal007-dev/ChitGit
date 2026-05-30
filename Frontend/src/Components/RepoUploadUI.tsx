@@ -6,7 +6,9 @@ const RepoUploadUI: React.FC = () => {
 	const RepoUplaodingHandler = useRepoStore(
 		(state) => state.RepoUplaodingHandler,
 	);
-	const UploadingStatus = useRepoStore((state) => state.UploadingStatus);
+	const UploadingStatus = useRepoStore((state) => state.UploadingStatus) as
+		| StatusStage
+		| null;
 	const [InputRepo, setInputRepo] = useState<string>("second");
 	const statusQue = [
 		"checking_repo_collection",
@@ -15,11 +17,13 @@ const RepoUploadUI: React.FC = () => {
 		"embedding_chunks",
 		"uploading_chunks",
 		"finished",
-	];
-	const getStageStyle = (currentStage: string| null, stage: string) => {
-        if(!currentStage || currentStage == "failed") return "bg-slate-700";
-		const currentIndex = statusQue.indexOf(currentStage as any);
-		const stageIndex = statusQue.indexOf(stage as any);
+	] as const;
+	type StatusStage = (typeof statusQue)[number] | "failed";
+
+	const getStageStyle = (currentStage: StatusStage | null, stage: StatusStage) => {
+		if (!currentStage || currentStage === "failed") return "bg-slate-700";
+		const currentIndex = statusQue.indexOf(currentStage as (typeof statusQue)[number]);
+		const stageIndex = statusQue.indexOf(stage as (typeof statusQue)[number]);
 
 		// completed stages
 		if (stageIndex < currentIndex) {
@@ -34,10 +38,10 @@ const RepoUploadUI: React.FC = () => {
 		// pending stages
 		return "bg-slate-700";
 	};
-	const getLabelStyle = (currentStage: string|null, stage: string) => {
-        if(!currentStage || currentStage == "failed") return "text-zinc-500";   
-		const currentIndex = statusQue.indexOf(currentStage as any);
-		const stageIndex = statusQue.indexOf(stage as any);
+	const getLabelStyle = (currentStage: StatusStage | null, stage: StatusStage) => {
+		if (!currentStage || currentStage === "failed") return "text-zinc-500";
+		const currentIndex = statusQue.indexOf(currentStage as (typeof statusQue)[number]);
+		const stageIndex = statusQue.indexOf(stage as (typeof statusQue)[number]);
 
 		if (stageIndex < currentIndex) {
 			return "text-emerald-400";
@@ -62,13 +66,16 @@ const RepoUploadUI: React.FC = () => {
 					{statusQue.map((status) => {
 						const style = getStageStyle(UploadingStatus, status);
 						return (
-							<div className={`h-full rounded-full flex-1 ${style}`}></div>
+							<div
+								key={status}
+								className={`h-full rounded-full flex-1 ${style}`}
+							/>
 						);
 					})}
 				</div>
 				<div className='flex justify-between text-[10px] text-on-surface-variant font-label-caps uppercase mt-1'>
 					{statusQue.map((status) => (
-						<span className={getLabelStyle(UploadingStatus, status)}>
+						<span key={status} className={getLabelStyle(UploadingStatus, status)}>
 							{status}
 						</span>
 					))}

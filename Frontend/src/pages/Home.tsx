@@ -238,7 +238,7 @@ const Home = () => {
 	const postMessage = useChatStore((state) => state.postMessage);
 	useEffect(() => {
 		fetchRepos();
-	}, []);
+	}, [fetchRepos]);
 
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({

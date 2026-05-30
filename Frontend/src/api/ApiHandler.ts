@@ -8,20 +8,12 @@ interface Message {
 }
 
 const LoginAPI = async (email:string, password: string) => {
-	try {
-		const response = await Api.post('/login', {email, password});
-		return response.data;
-	} catch (error) {
-		throw error;
-	}	
+	const response = await Api.post('/login', {email, password});
+	return response.data;
 }
 const RegisterAPI = async (email:string, password: string, username: string) => {
-	try {
-		const response = await Api.post('/register', {email, password, username});
-		return response.data;
-	} catch (error) {
-		throw error;
-	}	
+	const response = await Api.post('/register', {email, password, username});
+	return response.data;
 }
 
 const fetchMessagesAPI = async (conversationId: number) => {
@@ -61,11 +53,7 @@ const fetchReposAPI = async () => {
 };
 
 const uploadRepoAPI = async (repoUrl: string) => {
-	try {
-		const res = await Api.post("/repo", { url: repoUrl });
-		return res.data;
-	} catch (error) {
-		throw error;
-	}
+	const res = await Api.post("/repo", { url: repoUrl });
+	return res.data;
 };
 export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI , LoginAPI, RegisterAPI };

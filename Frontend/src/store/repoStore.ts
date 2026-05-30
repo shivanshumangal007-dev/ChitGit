@@ -98,7 +98,7 @@ const useRepoStore = create<RepoState>((set, get) => ({
 							});
 						}
 					}, 2000);
-				} catch (error) {
+				} catch {
 					set({
 						isRepoUploading: false,
 						repoError: "Failed to upload repository. Please try again.",
@@ -107,7 +107,7 @@ const useRepoStore = create<RepoState>((set, get) => ({
 			};
 			checkStatus();
             set({ UploadingStatus: null });
-		} catch (error) {
+		} catch {
 			set({
 				isRepoUploading: false,
 				repoError: "Failed to upload repository. Please try again.",

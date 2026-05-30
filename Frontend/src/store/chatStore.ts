@@ -8,6 +8,13 @@ interface Message {
 	timestamp: Date;
 }
 
+interface ApiMessage {
+	id: number;
+	content: string;
+	role: "user" | "assistant";
+	created_at: string;
+}
+
 interface conversationState {
 	conversationId: number | null;
 	messages: Message[];
@@ -20,7 +27,7 @@ interface conversationState {
 	// createConversation: (repoUrl: string) => Promise<void>;
 }
 
-const useChatStore = create<conversationState>((set, get) => ({
+const useChatStore = create<conversationState>((set) => ({
 	messages: [],
 	isLoading: false,
 	conversationId: null,
@@ -38,10 +45,10 @@ const useChatStore = create<conversationState>((set, get) => ({
 		};
 		set((state) => ({ messages: [...state.messages, userMessage] }));
         let response;
-        try{
+		try {
 			console.log("Posting message to conversation ID:", conversation_id);
             response = await postMessageAPI(userMessage, conversation_id);
-        }catch(error){
+		} catch {
             set({ errorInChat: "Failed to send message. Please try again." });
             set({ isLoading: false });
             return;
@@ -66,7 +73,7 @@ const useChatStore = create<conversationState>((set, get) => ({
 		set({ isLoading: true, errorInChat: null, messages: [] });
 		try {
 			const m = await fetchMessagesAPI(conversationId);
-			const fetchedMessages = m.map((msg: any) => ({
+			const fetchedMessages = (m as ApiMessage[]).map((msg) => ({
 				id: `msg-${msg.id}`,
 				text: msg.content,
 				sender: msg.role,
@@ -74,8 +81,7 @@ const useChatStore = create<conversationState>((set, get) => ({
 			}));
 			set({ messages: fetchedMessages, errorInChat: null });
 			set({ isLoading: false });
-		} catch (error) {
-			console.error("Error fetching messages:", error);
+		} catch {
 			set({ errorInChat: "Unable to load messages right now." });
 			set({ isLoading: false });
 		}
