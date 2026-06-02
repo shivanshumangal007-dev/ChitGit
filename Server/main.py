@@ -1,4 +1,4 @@
-from controllers.auth_controller import LoginUser, RegisterUser, verify_token
+from controllers.auth_controller import LoginUser, RegisterUser, verify_token, getMe
 from qdrant import client
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Header
 # from upload_worker import enqueue_upload_repo, get_job_status
@@ -24,7 +24,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,7 +82,7 @@ def get_current_user(
         "bearer ",
         ""
     )
-    return verify_token(token)
+    return verify_token(token)  
 
 
 ###auth routes###
@@ -95,6 +95,15 @@ def login(req: LoginRequest):
 def register(req: RegisterRequest):
     return RegisterUser(req.username, req.email, req.password)
 
+@app.get('/me')
+def get_me(user_id: int = Depends(get_current_user)):
+    verification_result = getMe(user_id);
+
+    return {
+        "user_id": user_id,
+        "username": verification_result["username"],
+        "email": verification_result["email"]
+    }
 
 ### REPO ROUTES ###
 @app.post('/repo')

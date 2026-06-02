@@ -19,13 +19,7 @@ def create_access_token(user_id: int):
         JWT_SECRET_KEY,
         algorithm=JWT_ALGORITHM
     )
-def verify_token(token: str):
 
-    return jwt.decode(
-        token,
-        JWT_SECRET_KEY,
-        algorithms=[JWT_ALGORITHM]
-    )
 def RegisterUser(username: str, email: str, password: str):
     init_db()
     with Session(engine) as session:
@@ -63,8 +57,28 @@ def LoginUser(email:str , password:str):
 def verify_token(token:str):
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-        return int(payload["sub"])
+        return payload["sub"]
+        # with Session(engine) as session:
+        #     user = session.exec(select(UserTable).where(UserTable.id == int(payload["sub"]))).first()
+        #     if not user:
+        #         raise HTTPException(status_code=401, detail="User not found")
+        #     return {
+        #         "user_id": payload["sub"],
+        #         "username": user.username,
+        #         "email": user.email
+        #     }
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+def getMe(user_id:int):
+    with Session(engine) as session:
+        user = session.exec(select(UserTable).where(UserTable.id == user_id)).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email
+         }    

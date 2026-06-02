@@ -1,21 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {LoginAPI} from "../api/ApiHandler";
+import { LoginAPI } from "../api/ApiHandler";
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const navigate = useNavigate();
-  const loginhandler = async () => {
-	try {
-		const response = await LoginAPI(email, password);
-		localStorage.setItem("token", response.access_token);
-		navigate("/");
-	} catch (error) {
-		console.error("Error during login:", error);
-	}
-  }
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const navigate = useNavigate();
+	const loginhandler = async () => {
+		setIsLoading(true);
+		try {
+			const response = await LoginAPI(email, password);
+			localStorage.setItem("token", response.access_token);
+			navigate("/");
+		} catch (error) {
+			console.error("Error during login:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 	return (
-		<div className='min-h-screen bg-slate-950 text-white lg:grid lg:grid-cols-2'>
+		<div className='relative min-h-screen bg-slate-950 text-white lg:grid lg:grid-cols-2'>
+			{isLoading && (
+				<div className='fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-6 backdrop-blur-sm'>
+					<div className='flex w-full max-w-sm flex-col items-center rounded-3xl border border-white/10 bg-slate-900/90 p-8 text-center shadow-2xl shadow-black/40'>
+						<div className='h-12 w-12 animate-spin rounded-full border-4 border-cyan-400/20 border-t-cyan-400' />
+						<p className='mt-5 text-lg font-semibold text-white'>
+							Signing in...
+						</p>
+						<p className='mt-2 text-sm leading-6 text-slate-400'>
+							Please wait while we authenticate your account.
+						</p>
+					</div>
+				</div>
+			)}
 			<div className='relative hidden overflow-hidden border-r border-white/10 lg:flex lg:flex-col lg:justify-center lg:px-12 xl:px-16'>
 				<div
 					className='absolute inset-0 opacity-30'
@@ -74,7 +91,13 @@ const Login = () => {
 						</p>
 					</div>
 
-					<form className='space-y-4'>
+					<form
+						className='space-y-4'
+						onSubmit={(e) => {
+							e.preventDefault();
+							loginhandler();
+						}}
+					>
 						<div className='space-y-2'>
 							<label
 								htmlFor='email'
@@ -88,6 +111,7 @@ const Login = () => {
 								placeholder='you@example.com'
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
+								disabled={isLoading}
 								className='w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20'
 							/>
 						</div>
@@ -103,21 +127,19 @@ const Login = () => {
 								id='password'
 								type='password'
 								value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder='Enter your password'
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder='Enter your password'
+								disabled={isLoading}
 								className='w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20'
 							/>
 						</div>
 
 						<button
 							type='submit'
-							className='mt-2 w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300'
-							onClick = {(e) => {
-								e.preventDefault();
-								loginhandler();
-							}}
+							disabled={isLoading}
+							className='mt-2 w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-cyan-400/60'
 						>
-							Sign in
+							{isLoading ? "Signing in..." : "Sign in"}
 						</button>
 					</form>
 
@@ -125,9 +147,9 @@ const Login = () => {
 						New here?{" "}
 						<a
 							className='font-medium text-cyan-300 hover:text-cyan-200 cursor-pointer'
-              onClick={() => {
-                navigate("/register");
-              }}
+							onClick={() => {
+								navigate("/register");
+							}}
 						>
 							Create an account
 						</a>

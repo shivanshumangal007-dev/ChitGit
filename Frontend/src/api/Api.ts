@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-	// baseURL: "http://localhost:8000",
-	baseURL: "https://chitgit-2.onrender.com",
+	baseURL: "http://localhost:8000",
+	// baseURL: "https://chitgit-2.onrender.com",
 	// baseURL: import.meta.env.REACT_APP_API_BASE_URL || "http://localhost:8000",
 	withCredentials: true,
 	headers: {

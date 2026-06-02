@@ -5,6 +5,8 @@ import remarkGfm from "remark-gfm";
 import RepoUploadUI from "../Components/RepoUploadUI";
 import { useChatStore } from "../store/chatStore";
 import useRepoStore from "../store/repoStore";
+import { useNavigate } from "react-router-dom";
+import { fetchUserDetailsAPI } from "../api/ApiHandler";
 
 const markdownComponents: Components = {
 	p: ({ children }) => (
@@ -217,6 +219,12 @@ const MessageCard = ({ message }: { message: ChatMessage }) => {
 	);
 };
 
+interface user {
+	user_id: number;
+	username: string;
+	email: string;
+}
+
 const Home = () => {
 	const messages = useChatStore((state) => state.messages);
 	const isLoading = useChatStore((state) => state.isLoading);
@@ -236,7 +244,22 @@ const Home = () => {
 	const repoClickHandler = useRepoStore((state) => state.RepoClickHandler);
 	const [inputChat, setInputChat] = useState<string>("");
 	const postMessage = useChatStore((state) => state.postMessage);
+	const [user, setUser] = useState<user | null>(null);
+	const navigate = useNavigate();
+
 	useEffect(() => {
+		const getUserDetails = async () => {
+			try{
+				const userDetails = await fetchUserDetailsAPI();
+				setUser(userDetails);
+			}
+			catch(error){
+				console.error("Error fetching user details:", error);
+				localStorage.removeItem("token");
+				navigate("/login");
+			}
+		}
+		getUserDetails();
 		fetchRepos();
 	}, [fetchRepos]);
 
@@ -313,6 +336,21 @@ const Home = () => {
 							))
 						)}
 					</ul>
+				</div>
+				<div className='mt-4 rounded-3xl border border-white/10 bg-slate-900/40 p-3 text-sm text-center text-slate-500 flex justify-between'>
+						<div className="text-left text-white/60">
+							{user?.username} <br/>
+							{user?.email}
+						</div>
+						<button
+							className='rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[11px] font-medium text-red-200 cursor-pointer hover:bg-red-500/20 transition-colors duration-300'
+							onClick={() => {
+								localStorage.removeItem("token");
+								navigate("/login");
+							}}
+						>
+							Logout
+						</button>
 				</div>
 			</aside>
 

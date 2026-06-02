@@ -56,4 +56,15 @@ const uploadRepoAPI = async (repoUrl: string) => {
 	const res = await Api.post("/repo", { url: repoUrl });
 	return res.data;
 };
-export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI , LoginAPI, RegisterAPI };
+
+
+const fetchUserDetailsAPI = async () => {
+	try {
+		const response = await Api.get("/me");
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching user details:", error);
+		throw error;
+	}
+}
+export { fetchMessagesAPI, postMessageAPI, fetchReposAPI, uploadRepoAPI , LoginAPI, RegisterAPI, fetchUserDetailsAPI };
