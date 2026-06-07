@@ -1,76 +1,105 @@
 # ChitGit
 
-ChitGit is a full-stack repository chat assistant that lets you upload a GitHub repo, index its code, and ask questions against it in a conversational UI.
+ChitGit is a full-stack repository chat assistant: upload a GitHub repo, index its code, and ask questions against it in a conversational UI.
 
 ## Highlights
 
 - GitHub authentication with Clerk.
-- Repository ingestion and background upload jobs.
+- Repository ingestion and background upload jobs (workers + RQ).
 - Semantic search over repository chunks using Qdrant and sentence-transformers.
 - Chat responses grounded in the uploaded repository content.
 - Separate React/Vite client and FastAPI Python server.
 
 ## Tech Stack
 
-- Client: React 19, TypeScript, Vite, Tailwind CSS, Clerk, Axios.
-- Server: FastAPI, SQLModel/Pydantic, Qdrant, Sentence Transformers, Uvicorn.
-- Local services: Redis via Docker Compose.
+- Client: React, TypeScript, Vite, (Tailwind CSS present in parts), Clerk, Axios.
+- Server: FastAPI, Pydantic/SQLModel, Qdrant, Sentence Transformers, Uvicorn, RQ workers.
+  -- Local services: Redis, optional Qdrant.
 
 ## Repository Layout
 
-```text
-Client/   React application
-Server/   FastAPI backend and workers
-docker-compose.yml   Local Redis service
 ```
+Frontend/        React + Vite client application
+Server/          FastAPI backend, controllers, workers
+render.yaml          Render deployment manifest
+Procfile             Procfile for workers/processes
+```
+
+Notable server folders/files:
+
+- `Server/controllers/` – request handlers and controller logic
+- `Server/Model.py`, `Server/pydanticModels.py` – data models
+- `Server/qdrant.py` – Qdrant integration
+- `Server/upload_worker.py` – background upload worker
+
+## Notable frontend files
+
+- `Frontend/src/` – React source
+- `Frontend/src/api/` – API client wrappers
+- `Frontend/src/Components/RepoUploadUI.tsx` – repo upload UI
 
 ## Prerequisites
 
-- Node.js 20 or newer.
-- pnpm.
-- Python 3.11 or newer.
-- Docker and Docker Compose.
+- Node.js 20 or newer
+- pnpm (or npm/yarn if you prefer)
+- Python 3.11 or newer
 
-## Environment Setup
+## Environment setup
 
-Create a `Server/.env` file and supply your own values for the backend services.
+Create environment files as needed.
+
+Server example:
 
 ```bash
 cp Server/.env.example Server/.env
+# edit Server/.env with your values
 ```
 
-## Run Locally
+Frontend: if `Frontend/.env` is required, copy from any example present in that folder.
 
-1. Start Redis:
+## Run locally
+
+1. Ensure required local services are running (for example, Redis):
+
+macOS example (Homebrew):
 
 ```bash
-docker compose up -d
+brew install redis
+brew services start redis
 ```
 
-2. Install and start the server:
+Or start Redis using your preferred method or system service manager.
+
+2. Run the server:
 
 ```bash
 cd Server
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirement.txt
+pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-3. Install and start the client:
+3. Run the frontend:
 
 ```bash
-cd Client
+cd Frontend
 pnpm install
 pnpm dev
 ```
 
-The client is configured to talk to `http://localhost:8000`.
+The frontend expects the API at `http://localhost:8000` by default; update the client config if needed.
 
 ## Validation
 
-- Client: `pnpm lint` and `pnpm build` inside `Client/`.
-- Server: `python -m compileall Server`.
+- Frontend: `pnpm lint` and `pnpm build` inside `Frontend/` (if configured in `package.json`).
+- Server: basic checks like `python -m compileall Server` and running unit tests if present.
+
+## Changes from previous README
+
+- `Client/` was renamed/replaced by `Frontend/` in this repo layout.
+- Fixed server dependency file to `requirements.txt` (was previously referenced incorrectly).
+- Added pointers to controllers and worker files under `Server/`.
 
 ## License
 
