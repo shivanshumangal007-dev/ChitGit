@@ -11,9 +11,9 @@ from config.config import ENV
 import os
 import uvicorn
 import uuid
-origins = {
-    "http://localhost:5173", "https://chit-git-prod.vercel.app/"
-}
+origins = ["http://localhost:5173", "https://chit-git-prod.vercel.app/"]
+    
+
 IS_PRODUCTION = (ENV == "production")
 
 app = FastAPI(
