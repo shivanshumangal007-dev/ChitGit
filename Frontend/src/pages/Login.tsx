@@ -5,6 +5,7 @@ const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 	const loginhandler = async () => {
 		setIsLoading(true);
@@ -14,6 +15,7 @@ const Login = () => {
 			navigate("/");
 		} catch (error) {
 			console.error("Error during login:", error);
+			setError("Login failed. Please check your credentials and try again.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -79,7 +81,7 @@ const Login = () => {
 
 			<div className='flex items-center justify-center px-6 py-12 sm:px-10 lg:px-12'>
 				<div className='w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-10'>
-					<div className='mb-8 space-y-2 text-center lg:text-left'>
+					<div className='mb-4 space-y-2 text-center lg:text-left'>
 						<p className='text-sm uppercase tracking-[0.3em] text-cyan-300/80'>
 							Welcome back
 						</p>
@@ -90,7 +92,7 @@ const Login = () => {
 							Access your repositories, conversations, and upload history.
 						</p>
 					</div>
-
+				    {error && (<p className= 'px-2 py-1 mb-2 rounded-full text-red-400 border-2 border-red-400 bg-red-500/10'>{error}</p>)}
 					<form
 						className='space-y-4'
 						onSubmit={(e) => {

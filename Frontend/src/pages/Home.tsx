@@ -291,7 +291,7 @@ const Home = () => {
 					onClick={newRepoClickHandler}
 				>
 					<Plus className='h-5 w-5' />
-					New Chat
+					New Repository Conversation
 				</button>
 
 				<div className='mt-4 flex-1 rounded-3xl border border-white/10 bg-slate-900/40 p-3'>

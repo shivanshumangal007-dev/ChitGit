@@ -7,6 +7,8 @@ const Register = () => {
 	const [password, setPassword] = useState("");
 	const [username, setUsername] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
 	const registerHandler = async () => {
 		setIsLoading(true);
 		try {
@@ -15,6 +17,7 @@ const Register = () => {
 			navigate("/login");
 		} catch (error) {
 			console.error("Error during registration:", error);
+			setError("Registration failed. Please check your details and try again.");
 		} finally {
 			setIsLoading(false);
 		}
@@ -93,6 +96,11 @@ const Register = () => {
 							supercharge your development workflow with ChitGit.
 						</p>
 					</div>
+					{error && (
+						<p className='px-2 py-1 mb-2 rounded-full text-red-400 border-2 border-red-400 bg-red-500/10'>
+							{error}
+						</p>
+					)}
 
 					<form
 						className='space-y-4'
