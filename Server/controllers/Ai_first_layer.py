@@ -40,7 +40,7 @@ from config.config import OPENROUTER_API_KEY
 def get_query_enhanced(query: str):
     with OpenRouter(api_key=OPENROUTER_API_KEY) as client:
         response = client.chat.send(
-            model="z-ai/glm-4.5-air:free",
+            model="cohere/north-mini-code:free",
             messages=[
                 {
                     "role": "user",
@@ -95,21 +95,25 @@ Response style:
 Answer the user question strictly from the repository context.
 """
 
-    with OpenRouter(api_key=OPENROUTER_API_KEY) as client:
-        response = client.chat.send(
-            model="openai/gpt-oss-120b:free",
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                },
-                {
-                    "role": "user",
-                    "content": USER_PROMPT
-                }
-            ],
-            temperature=0.2,
-            max_tokens=500,
-        )
-    print(response.choices[0])
-    return response.choices[0].message.content
+    try:
+        with OpenRouter(api_key=OPENROUTER_API_KEY) as client:
+            response = client.chat.send(
+                model="openai/gpt-oss-120b:free",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": SYSTEM_PROMPT
+                    },
+                    {
+                        "role": "user",
+                        "content": USER_PROMPT
+                    }
+                ],
+                temperature=0.2,
+                max_tokens=500,
+            )
+        print(response.choices[0])
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error generating final AI response: {e}")
+        return "I encountered an error while generating the response from the repository context."
